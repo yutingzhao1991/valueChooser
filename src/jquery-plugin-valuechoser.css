@@ -1,0 +1,94 @@
+.jquery-valuechooser-popup {
+    background: #fff;
+    position: absolute;
+    border-radius: 5px;
+    border: 5px solid #ddd;
+    top: 50%;
+    left: 50%;
+    font-family: 'Verdana','宋体';
+    font-size: 12px;
+}
+
+.jquery-valuechooser-header {
+    height: 40px;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    border-bottom: 1px solid #ddd;
+    background: #eee;
+}
+
+.jquery-valuechooser-search {
+    margin: 8px;
+}
+
+.jquery-valuechooser-close {
+    height: 25px;
+    line-height: 25px;
+    position: absolute;
+    right: 20px;
+    top: 5px;
+    cursor: pointer;
+}
+
+.jquery-valuechooser-close:hover {
+    text-decoration: underline;
+}
+
+.jquery-valuechooser-content {
+    padding: 10px;
+    position: absolute;
+    top: 41px;
+    bottom: 51px;
+    overflow: auto;
+}
+
+.jquery-valuechooser-unit {
+    font-size: 12px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    margin: 2px 3px;
+    padding: 0px 5px;
+    display: inline-block;
+    border-radius: 2px;
+    cursor: pointer;
+    border: 1px solid #ddd;
+}
+
+.jquery-valuechooser-unit.selected {
+    color: #fff;
+    background: #bbb;
+}
+
+.jquery-valuechooser-unit:hover {
+    background: #eee;
+}
+
+.jquery-valuechooser-footer {
+    height: 50px;
+    border-top: 1px solid #ddd;
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+}
+
+.jquery-valuechooser-submit {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+}
+
+.jquery-valuechooser-clear {
+    position: absolute;
+    right: 65px;
+    top: 15px;
+}
+
+.jquery-valuechooser-hint {
+    margin: 15px;
+    width: 60%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
