@@ -99,6 +99,7 @@
 				});
 				$this.attr('value', text);
 				$this.attr('data-value', ids);
+				$this.trigger('change');
 				options.onSubmit(result);
 			}
 
