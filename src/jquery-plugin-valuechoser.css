@@ -92,3 +92,8 @@
     white-space: nowrap;
     text-overflow: ellipsis;
 }
+
+.jquery-valuechooser-groupselector {
+    float: left;
+    margin-top: 2px;
+}

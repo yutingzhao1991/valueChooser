@@ -12,6 +12,7 @@
  * 6:submitText {String} submit btn text
  * 7:clearText {String} clear chosed values btn text
  * 8:grouping {Boolean} is grouping by group
+ * 9:separator {String} is separator bewteen mutiple value
  *
  * Thanks for your use, if you have some suggestion you can contact me
  * website: http://yutingzhao.com
@@ -37,6 +38,7 @@
 				submitText: '确认',
 				clearText: '重置',
 				grouping: false,
+				separator: ' ',
 				onSubmit: function(result){
 				}
 			};
@@ -72,8 +74,6 @@
 
 			//可选值
 			var dataList = [];
-			//记录被选中的索引
-			var selected = [];
 			//通过id获取名称的索引
 			var dataMap = {};
 
@@ -89,8 +89,9 @@
 				var text = '';
 				var ids = '';
 				$.each(result, function(index, item) {
-					text += item.name + ' ';
-					ids += item.id + ' ';
+					var end = (index == result.length - 1 ? '' : options.separator);
+					text += item.name + end;
+					ids += item.id + end;
 				});
 				$this.attr('value', text);
 				$this.attr('data-value', ids);
@@ -103,8 +104,10 @@
 				});
 				submitBtn = $('<button>').addClass('jquery-valuechooser-submit').text(options.submitText).click(function(){
 					var result = [];
-					$.each(selected, function(index, item){
-						result.push(options.data[item]);
+					$.each(dataList, function(index, item){
+						if (item.selected) {
+							result.push(item.data);
+						}
 					});
 					submitValue(result);
 					hidePopup();
@@ -137,6 +140,35 @@
 				}).appendTo(document.body);
 			}
 
+			function triggerSelect(item, status) {
+				if (status == null) {
+					status = !item.dom.hasClass('selected');
+				}
+				if (status) {
+					if(options.type == 'single'){
+						$.each(dataList, function(i, t){
+							t.dom.removeClass('selected');
+							t.selected = false;
+						});
+					}
+					item.dom.addClass('selected');
+					item.selected = true;
+				} else {
+					item.dom.removeClass('selected');
+					item.selected = false;
+				}
+			}
+
+			function unSelect(value) {
+				$.each(dataList, function(i, t){
+					if(t == index){
+						selected.splice(i, 1);
+						return false;
+					}
+				});
+				dataList[index].dom.removeClass('selected');
+			}
+
 			function renderData(){
 				//按照分组排序
 				if(options.grouping){
@@ -150,53 +182,59 @@
 				var currentGroup = -1;
 				$.each(options.data, function(index, item){
 					if(options.grouping){
+						item.groupIndex = item.groupIndex || '__others';
+						item.groupName = item.groupName || '其他';
 						if(item.groupIndex != currentGroup){
 							currentGroup = item.groupIndex;
-							$('<h6>' + item.groupName + '：</h6>').appendTo(container)
+							if(options.type == 'single'){
+								$('<h6>' + item.groupName + '：</h6>').appendTo(container)
+							} else {
+								$('<h6><input type="checkbox" data-group="' + item.groupIndex
+								+ '" class="jquery-valuechooser-groupselector"> ' +
+								item.groupName + '：</h6>').appendTo(container)
+							}	
 						}
 					}
-					dataList.push($('<div>')
+					var dom = $('<div>')
 						.addClass('jquery-valuechooser-unit')
 						.text(item.name || item.id)
-						.appendTo(container)
-					);
+						.appendTo(container);
+					dataList.push({
+						data: item,
+						dom: dom,
+						selected: false
+					});
 					dataMap[item.id] = item.name || item.id;
 				});
 
 				//添加选择事件
 				$.each(dataList, function(index, item){
 					(function(index){
-						item.click(function(){
-							if(dataList[index].hasClass('selected')){
-								//取消选中
-								$.each(selected, function(i, t){
-									if(t == index){
-										selected.splice(i, 1);
-										return false;
-									}
-								});
-								dataList[index].removeClass('selected');
-							}else{
-								if(options.type == 'single'){
-									//单选
-									$.each(selected, function(i, t){
-										dataList[t].removeClass('selected');
-									});
-									selected = [index];
-									dataList[index].addClass('selected');
-								}else{
-									selected.push(index);
-									dataList[index].addClass('selected');
+						item.dom.click(function(){
+							triggerSelect(item);
+							var hintText = '';
+							var selectedCount = 0;
+							$.each(dataList, function(i, t){
+								if (t.selected) {
+									hintText += t.data.name || t.data.id;
+									hintText += ' ';
+									selectedCount ++;
 								}
-							}
-							var hintText = ' ';
-							$.each(selected, function(i, t){
-								hintText += options.data[t].name || options.data[t].id;
-								hintText += ' ';
 							});
-							hint.text('当前选中' + selected.length + '项：' + hintText);
+							hint.text('当前选中' + selectedCount + '项：' + hintText);
 						});
 					})(index);
+				});
+
+				// add group select listener
+				$('.jquery-valuechooser-groupselector').click(function () {
+					var groupIndex = $(this).data('group');
+					var status = $(this).prop('checked');
+					$.each(dataList, function(index, item){
+						if (item.data.groupIndex == groupIndex) {
+							triggerSelect(item, status);
+						}
+					});
 				});
 			}
 
@@ -204,24 +242,23 @@
 				searchInput.change(function(){
 					var keyword = searchInput.val();
 					$.each(dataList, function(index, item){
-						var searchValue = options.data[index].name || options.data[index].id || "";
+						var searchValue = item.data[index].name || item.data[index].id || "";
 						if(searchValue.search(keyword) == -1){
 							//搜索不匹配
-							item.css('display', 'none');
+							item.dom.css('display', 'none');
 						}else{
 							//搜索匹配
-							item.css('display', '');
+							item.dom.css('display', '');
 						}
 					});
 				});
 			}
 
 			function resetSelectd(){
-				$.each(selected, function(index, item){
-					dataList[item].removeClass('selected');
+				$.each(dataList, function(index, item){
+					triggerSelect(item, false);
 				});
 				hint.text('当前没有选中任何值');
-				selected = [];
 			}
 
 			function showPopup(){
