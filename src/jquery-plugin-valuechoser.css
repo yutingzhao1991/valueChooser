@@ -31,6 +31,12 @@
     cursor: pointer;
 }
 
+.jquery-valuechooser-all {
+    position: absolute;
+    right: 115px;
+    top: 15px;
+}
+
 .jquery-valuechooser-close:hover {
     text-decoration: underline;
 }

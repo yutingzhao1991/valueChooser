@@ -11,8 +11,9 @@
  * 5:closeText {String} close btn text
  * 6:submitText {String} submit btn text
  * 7:clearText {String} clear chosed values btn text
- * 8:grouping {Boolean} is grouping by group
- * 9:separator {String} is separator bewteen mutiple value
+ * 8:selectAllText {String} select all value btn text
+ * 9:grouping {Boolean} is grouping by group
+ * 10:separator {String} is separator bewteen mutiple value
  *
  * Thanks for your use, if you have some suggestion you can contact me
  * website: http://yutingzhao.com
@@ -37,6 +38,7 @@
 				closeText: '关闭',
 				submitText: '确认',
 				clearText: '重置',
+				selectAllText: '全选',
 				grouping: false,
 				separator: ' ',
 				onSubmit: function(result){
@@ -65,6 +67,8 @@
 			var submitBtn = null;
 			//重置按钮
 			var clearBtn = null;
+			//全选按钮
+			var selectAllBtn = null;
 			//数据容器
 			var container = null;
 			//搜索过滤框
@@ -102,6 +106,11 @@
 				closeBtn = $('<div>').addClass('jquery-valuechooser-close').text(options.closeText).click(function(){
 					hidePopup();
 				});
+				if (options.type != 'single') {
+					selectAllBtn = $('<button>').addClass('jquery-valuechooser-all').text(options.selectAllText).click(function(){
+						selectAll();
+					});
+				}
 				submitBtn = $('<button>').addClass('jquery-valuechooser-submit').text(options.submitText).click(function(){
 					var result = [];
 					$.each(dataList, function(index, item){
@@ -131,6 +140,7 @@
 						.append(hint)
 						.append(submitBtn)
 						.append(clearBtn)
+						.append(selectAllBtn)
 				).css({
 					'display': 'none',
 					'width': options.width + 'px',
@@ -156,6 +166,20 @@
 				} else {
 					item.dom.removeClass('selected');
 					item.selected = false;
+				}
+				var hintText = '';
+				var selectedCount = 0;
+				$.each(dataList, function(i, t){
+					if (t.selected) {
+						hintText += t.data.name || t.data.id;
+						hintText += ' ';
+						selectedCount ++;
+					}
+				});
+				if (selectedCount == 0) {
+					hint.text('当前没有选中任何值');
+				} else {
+					hint.text('当前选中' + selectedCount + '项：' + hintText);
 				}
 			}
 
@@ -212,16 +236,6 @@
 					(function(index){
 						item.dom.click(function(){
 							triggerSelect(item);
-							var hintText = '';
-							var selectedCount = 0;
-							$.each(dataList, function(i, t){
-								if (t.selected) {
-									hintText += t.data.name || t.data.id;
-									hintText += ' ';
-									selectedCount ++;
-								}
-							});
-							hint.text('当前选中' + selectedCount + '项：' + hintText);
 						});
 					})(index);
 				});
@@ -254,11 +268,16 @@
 				});
 			}
 
+			function selectAll(){
+				$.each(dataList, function(index, item){
+					triggerSelect(item, true);
+				});
+			}
+
 			function resetSelectd(){
 				$.each(dataList, function(index, item){
 					triggerSelect(item, false);
 				});
-				hint.text('当前没有选中任何值');
 			}
 
 			function showPopup(){
