@@ -256,7 +256,7 @@
 				searchInput.change(function(){
 					var keyword = searchInput.val();
 					$.each(dataList, function(index, item){
-						var searchValue = item.data[index].name || item.data[index].id || "";
+						var searchValue = item.data.name || item.data.id || "";
 						if(searchValue.search(keyword) == -1){
 							//搜索不匹配
 							item.dom.css('display', 'none');
