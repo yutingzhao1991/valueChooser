@@ -1,4 +1,5 @@
 /**
+ * https://github.com/yutingzhao1991/valueChooser
  * a jquery plugin valuechooser
  * add to a input and then when input element focused, there will pop a dialog for chose value
  * the chooser can be single or mutil
@@ -22,7 +23,7 @@
  *
  * thanks for resever this declaration
  * date 2012-01-04
- * version 1.0.0
+ * version 1.0.1
  */
 
 ;(function($) {
@@ -80,7 +81,6 @@
 			var dataList = [];
 			//通过id获取名称的索引
 			var dataMap = {};
-
 			renderPopup();
 			renderData();
 			initSearch();
@@ -198,6 +198,12 @@
 				//按照分组排序
 				if(options.grouping){
 					options.data.sort(function(a, b){
+						if(a.groupIndex != null && b.groupIndex == null) {
+							return -1;
+						}
+						if(a.groupIndex == null && b.groupIndex != null) {
+							return 1;
+						}
 						if(a.groupIndex == b.groupIndex){
 							return a.name > b.name ? 1 : -1;
 						}
@@ -217,7 +223,7 @@
 								$('<h6><input type="checkbox" data-group="' + item.groupIndex
 								+ '" class="jquery-valuechooser-groupselector"> ' +
 								item.groupName + '：</h6>').appendTo(container)
-							}	
+							}
 						}
 					}
 					var dom = $('<div>')
@@ -257,8 +263,9 @@
 				searchInput.change(function(){
 					var keyword = searchInput.val();
 					$.each(dataList, function(index, item){
-						var searchValue = item.data.name || item.data.id || "";
-						if(searchValue.search(keyword) == -1){
+						var searchValue = "" + (item.data.name || "");
+						var searchId = "" + (item.data.id || "");
+						if(searchValue.search(keyword) == -1 && searchId.search(keyword) == -1){
 							//搜索不匹配
 							item.dom.css('display', 'none');
 						}else{
